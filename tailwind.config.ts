@@ -13,6 +13,15 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Geist", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["Geist Mono", "monospace"],
+      },
+      fontSize: {
+        display: ["2rem", { lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "500" }],
+        body: ["0.875rem", { lineHeight: "1.6", fontWeight: "400" }],
+        label: ["0.75rem", { lineHeight: "1", letterSpacing: "0.06em", fontWeight: "600" }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -59,31 +68,37 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius-md)",
+        sm: "calc(var(--radius-md) - 4px)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        hover: "var(--shadow-hover)",
+      },
+      transitionTimingFunction: {
+        smooth: "var(--easing)",
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "pulse-ring": {
+          "0%, 100%": { opacity: "0.4", transform: "scale(1)" },
+          "50%": { opacity: "0.8", transform: "scale(1.05)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-ring": "pulse-ring 2s ease-in-out infinite",
       },
     },
   },
