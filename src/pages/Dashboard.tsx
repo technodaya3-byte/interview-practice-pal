@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { LogOut, User } from "lucide-react";
+import { LogOut, Play, User } from "lucide-react";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -24,9 +24,14 @@ const Dashboard = () => {
               Welcome back, {user?.user_metadata?.display_name || user?.email}
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2">
-            <LogOut size={14} /> Sign out
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button onClick={() => navigate("/interview")} className="gap-2">
+              <Play size={14} /> New Interview
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleSignOut} className="gap-2">
+              <LogOut size={14} /> Sign out
+            </Button>
+          </div>
         </div>
 
         <div className="feedback-card text-center py-16">
@@ -37,7 +42,9 @@ const Dashboard = () => {
           <p className="text-body text-muted-foreground max-w-sm mx-auto mb-6">
             Start your first session to see your baseline performance score.
           </p>
-          <Button>Start First Interview</Button>
+          <Button onClick={() => navigate("/interview")} className="gap-2">
+            <Play size={14} /> Start First Interview
+          </Button>
         </div>
       </div>
     </div>
