@@ -2,25 +2,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 const navLinks = [
   { label: "Features", href: "#features" },
   { label: "How it Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
 ];
 
 export const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container flex items-center justify-between h-14">
-        <a href="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-semibold text-sm">AI</span>
           </div>
           <span className="font-semibold text-foreground tracking-tight">InterviewPro</span>
-        </a>
+        </Link>
 
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
@@ -35,10 +37,20 @@ export const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Sign in
-          </Button>
-          <Button size="sm">Get Started</Button>
+          {user ? (
+            <Button size="sm" asChild>
+              <Link to="/dashboard">Dashboard</Link>
+            </Button>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/auth">Sign in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/auth">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -69,8 +81,20 @@ export const Navbar = () => {
                 </a>
               ))}
               <div className="flex gap-3 pt-2">
-                <Button variant="ghost" size="sm" className="flex-1">Sign in</Button>
-                <Button size="sm" className="flex-1">Get Started</Button>
+                {user ? (
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/dashboard">Dashboard</Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" size="sm" className="flex-1" asChild>
+                      <Link to="/auth">Sign in</Link>
+                    </Button>
+                    <Button size="sm" className="flex-1" asChild>
+                      <Link to="/auth">Get Started</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>
