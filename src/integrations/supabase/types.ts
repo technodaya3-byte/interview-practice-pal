@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      interview_sessions: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          id: string
+          job_level: string
+          job_title: string
+          questions: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          job_level: string
+          job_title: string
+          questions?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          job_level?: string
+          job_title?: string
+          questions?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

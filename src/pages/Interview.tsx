@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { RoleSelectionDialog, InterviewConfig } from "@/components/interview/RoleSelectionDialog";
 import { WebcamView } from "@/components/interview/WebcamView";
@@ -22,6 +23,7 @@ type Question = { question: string; category: string };
 type Phase = "setup" | "live" | "complete";
 
 const Interview = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -32,6 +34,7 @@ const Interview = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [config, setConfig] = useState<InterviewConfig | null>(null);
+  const startTimeRef = useRef<number>(0);
 
   const handleStart = useCallback(
     async (cfg: InterviewConfig) => {
@@ -65,6 +68,7 @@ const Interview = () => {
         setCurrentIndex(0);
         setPhase("live");
         setIsRecording(true);
+        startTimeRef.current = Date.now();
       } catch (e: any) {
         toast({
           title: "Failed to generate questions",
@@ -90,8 +94,20 @@ const Interview = () => {
     }
   };
 
-  const endInterview = () => {
+  const endInterview = async () => {
     setIsRecording(false);
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+
+    if (user && config) {
+      await supabase.from("interview_sessions").insert({
+        user_id: user.id,
+        job_title: config.jobTitle,
+        job_level: config.jobLevel,
+        questions: questions as any,
+        duration_seconds: durationSeconds,
+      });
+    }
+
     setPhase("complete");
   };
 
