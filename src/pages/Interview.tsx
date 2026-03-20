@@ -68,6 +68,7 @@ const Interview = () => {
         setCurrentIndex(0);
         setPhase("live");
         setIsRecording(true);
+        startTimeRef.current = Date.now();
       } catch (e: any) {
         toast({
           title: "Failed to generate questions",
