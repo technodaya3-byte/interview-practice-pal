@@ -94,8 +94,20 @@ const Interview = () => {
     }
   };
 
-  const endInterview = () => {
+  const endInterview = async () => {
     setIsRecording(false);
+    const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+
+    if (user && config) {
+      await supabase.from("interview_sessions").insert({
+        user_id: user.id,
+        job_title: config.jobTitle,
+        job_level: config.jobLevel,
+        questions: questions as any,
+        duration_seconds: durationSeconds,
+      });
+    }
+
     setPhase("complete");
   };
 
