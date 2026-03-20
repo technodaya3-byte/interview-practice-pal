@@ -8,7 +8,8 @@ import { RoleSelectionDialog, InterviewConfig } from "@/components/interview/Rol
 import { WebcamView } from "@/components/interview/WebcamView";
 import { InterviewTimer } from "@/components/interview/InterviewTimer";
 import { QuestionPanel } from "@/components/interview/QuestionPanel";
-import { motion, AnimatePresence } from "framer-motion";
+import { FeedbackPanel, InterviewFeedback } from "@/components/interview/FeedbackPanel";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ChevronRight,
@@ -35,6 +36,8 @@ const Interview = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [config, setConfig] = useState<InterviewConfig | null>(null);
   const startTimeRef = useRef<number>(0);
+  const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
+  const [analyzingFeedback, setAnalyzingFeedback] = useState(false);
 
   const handleStart = useCallback(
     async (cfg: InterviewConfig) => {
@@ -97,18 +100,59 @@ const Interview = () => {
   const endInterview = async () => {
     setIsRecording(false);
     const durationSeconds = Math.round((Date.now() - startTimeRef.current) / 1000);
+    setPhase("complete");
+    setAnalyzingFeedback(true);
+    setFeedback(null);
 
+    // Save session
+    let sessionId: string | null = null;
     if (user && config) {
-      await supabase.from("interview_sessions").insert({
-        user_id: user.id,
-        job_title: config.jobTitle,
-        job_level: config.jobLevel,
-        questions: questions as any,
-        duration_seconds: durationSeconds,
-      });
+      const { data: insertData } = await supabase
+        .from("interview_sessions")
+        .insert({
+          user_id: user.id,
+          job_title: config.jobTitle,
+          job_level: config.jobLevel,
+          questions: questions as any,
+          duration_seconds: durationSeconds,
+        })
+        .select("id")
+        .single();
+      sessionId = insertData?.id ?? null;
     }
 
-    setPhase("complete");
+    // Analyze with AI
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-interview", {
+        body: {
+          jobTitle: config?.jobTitle,
+          jobLevel: config?.jobLevel,
+          questions,
+          durationSeconds,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setFeedback(data.feedback);
+
+      // Save feedback to session
+      if (sessionId && data.feedback) {
+        await supabase
+          .from("interview_sessions")
+          .update({ feedback: data.feedback as any })
+          .eq("id", sessionId);
+      }
+    } catch (e: any) {
+      toast({
+        title: "Feedback analysis failed",
+        description: e.message || "Could not generate feedback.",
+        variant: "destructive",
+      });
+    } finally {
+      setAnalyzingFeedback(false);
+    }
   };
 
   // Setup phase
@@ -126,54 +170,59 @@ const Interview = () => {
   // Complete phase
   if (phase === "complete") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
-          className="feedback-card max-w-md text-center py-12 px-8"
-        >
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-            <span className="text-2xl">✓</span>
+      <div className="min-h-screen bg-background">
+        <div className="h-14 border-b border-border bg-background flex items-center justify-between px-4 lg:px-8">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center gap-1.5 text-body text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft size={14} />
+            Dashboard
+          </button>
+          <div className="text-sm text-muted-foreground">
+            {config?.jobTitle} — {config?.jobLevel}
           </div>
-          <h2 className="text-display text-foreground mb-3">Session Complete</h2>
-          <p className="text-body text-muted-foreground mb-2">
-            {config?.jobTitle} — {config?.jobLevel} level
-          </p>
-          <p className="text-body text-muted-foreground mb-8">
-            You answered {questions.length} questions. Performance analysis coming soon.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button variant="outline" onClick={() => navigate("/dashboard")}>
-              Back to Dashboard
-            </Button>
-            <Button
-              onClick={() => {
-                setPhase("setup");
-                setQuestions([]);
-                setCurrentIndex(0);
-              }}
-            >
-              New Session
-            </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setPhase("setup");
+              setQuestions([]);
+              setCurrentIndex(0);
+              setFeedback(null);
+            }}
+          >
+            New Session
+          </Button>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-10">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h1 className="text-display text-foreground mb-1">Session Complete</h1>
+            <p className="text-body text-muted-foreground mb-8">
+              {questions.length} questions answered
+            </p>
+          </motion.div>
+
+          <div className="feedback-card p-6 lg:p-8">
+            <FeedbackPanel feedback={feedback} loading={analyzingFeedback} />
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
-  // Live interview phase — the "Stage"
+  // Live interview phase
   return (
     <div className="min-h-screen bg-foreground/[0.03] flex flex-col">
-      {/* Top bar */}
       <div className="h-14 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-8">
         <button
           onClick={() => {
-            if (
-              window.confirm(
-                "End this interview session? Progress will be lost."
-              )
-            ) {
+            if (window.confirm("End this interview session? Progress will be lost.")) {
               setIsRecording(false);
               navigate("/dashboard");
             }
@@ -193,13 +242,9 @@ const Interview = () => {
         </Button>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col lg:flex-row gap-6 p-4 lg:p-8 max-w-7xl mx-auto w-full">
-        {/* Video area — 60% */}
         <div className="lg:w-[60%] flex flex-col gap-4">
           <WebcamView isRecording={isRecording} />
-
-          {/* Floating controls */}
           <div className="flex items-center justify-center gap-3">
             <Button
               variant="outline"
@@ -212,7 +257,6 @@ const Interview = () => {
           </div>
         </div>
 
-        {/* Question panel — 40% */}
         <div className="lg:w-[40%] flex flex-col">
           <div className="feedback-card flex-1 flex flex-col">
             <div className="flex-1">
