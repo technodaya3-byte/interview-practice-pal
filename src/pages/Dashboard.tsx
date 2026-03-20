@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
+import { SessionHistory } from "@/components/dashboard/SessionHistory";
 import { LogOut, Play, User } from "lucide-react";
 
 const Dashboard = () => {
@@ -16,7 +17,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 container max-w-4xl">
+      <div className="pt-24 pb-16 container max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-display text-foreground">Dashboard</h1>
@@ -34,7 +35,13 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="feedback-card text-center py-16">
+        <div className="mb-6">
+          <h2 className="text-sm font-medium text-muted-foreground mb-3">Recent Sessions</h2>
+          <SessionHistory />
+        </div>
+
+        {/* Empty state is shown when SessionHistory returns null (no sessions) */}
+        <div className="feedback-card text-center py-16" id="empty-state">
           <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-4">
             <User size={20} className="text-primary" />
           </div>
