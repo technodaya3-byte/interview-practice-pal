@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Play, Clock, Briefcase, Trash2 } from "lucide-react";
+import { Clock, Briefcase, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 type Session = {
@@ -29,9 +28,8 @@ const levelLabels: Record<string, string> = {
   manager: "Manager",
 };
 
-export const SessionHistory = () => {
+export const SessionHistory = ({ onHasData }: { onHasData: (has: boolean) => void }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -43,15 +41,19 @@ export const SessionHistory = () => {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(20);
-      setSessions((data as unknown as Session[]) || []);
+      const result = (data as unknown as Session[]) || [];
+      setSessions(result);
+      onHasData(result.length > 0);
       setLoading(false);
     };
     fetchSessions();
-  }, [user]);
+  }, [user, onHasData]);
 
   const deleteSession = async (id: string) => {
     await supabase.from("interview_sessions").delete().eq("id", id);
-    setSessions((prev) => prev.filter((s) => s.id !== id));
+    const updated = sessions.filter((s) => s.id !== id);
+    setSessions(updated);
+    onHasData(updated.length > 0);
   };
 
   if (loading) {
@@ -64,9 +66,7 @@ export const SessionHistory = () => {
     );
   }
 
-  if (sessions.length === 0) {
-    return null; // Parent shows empty state
-  }
+  if (sessions.length === 0) return null;
 
   return (
     <div className="space-y-3">

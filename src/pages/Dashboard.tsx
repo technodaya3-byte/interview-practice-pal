@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -8,11 +9,14 @@ import { LogOut, Play, User } from "lucide-react";
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [hasSessions, setHasSessions] = useState<boolean | null>(null);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
+
+  const onHasData = useCallback((has: boolean) => setHasSessions(has), []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -35,24 +39,25 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="mb-6">
+        {hasSessions && (
           <h2 className="text-sm font-medium text-muted-foreground mb-3">Recent Sessions</h2>
-          <SessionHistory />
-        </div>
+        )}
+        <SessionHistory onHasData={onHasData} />
 
-        {/* Empty state is shown when SessionHistory returns null (no sessions) */}
-        <div className="feedback-card text-center py-16" id="empty-state">
-          <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-4">
-            <User size={20} className="text-primary" />
+        {hasSessions === false && (
+          <div className="feedback-card text-center py-16">
+            <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-4">
+              <User size={20} className="text-primary" />
+            </div>
+            <h2 className="text-foreground font-medium text-lg mb-2">No simulations yet</h2>
+            <p className="text-body text-muted-foreground max-w-sm mx-auto mb-6">
+              Start your first session to see your baseline performance score.
+            </p>
+            <Button onClick={() => navigate("/interview")} className="gap-2">
+              <Play size={14} /> Start First Interview
+            </Button>
           </div>
-          <h2 className="text-foreground font-medium text-lg mb-2">No simulations yet</h2>
-          <p className="text-body text-muted-foreground max-w-sm mx-auto mb-6">
-            Start your first session to see your baseline performance score.
-          </p>
-          <Button onClick={() => navigate("/interview")} className="gap-2">
-            <Play size={14} /> Start First Interview
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );
