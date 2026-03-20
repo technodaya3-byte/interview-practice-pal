@@ -2,3 +2,6 @@ project_id = "vebitzxymnoubbqzmeia"
 
 [functions.generate-questions]
 verify_jwt = false
+
+[functions.analyze-interview]
+verify_jwt = false
