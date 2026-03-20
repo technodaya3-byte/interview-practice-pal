@@ -43,7 +43,7 @@ export const SessionHistory = () => {
         .select("*")
         .order("created_at", { ascending: false })
         .limit(20);
-      setSessions((data as Session[]) || []);
+      setSessions((data as unknown as Session[]) || []);
       setLoading(false);
     };
     fetchSessions();

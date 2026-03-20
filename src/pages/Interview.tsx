@@ -23,6 +23,7 @@ type Question = { question: string; category: string };
 type Phase = "setup" | "live" | "complete";
 
 const Interview = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -33,6 +34,7 @@ const Interview = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [config, setConfig] = useState<InterviewConfig | null>(null);
+  const startTimeRef = useRef<number>(0);
 
   const handleStart = useCallback(
     async (cfg: InterviewConfig) => {
