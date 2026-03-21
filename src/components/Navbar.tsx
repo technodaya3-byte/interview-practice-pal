@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Link } from "react-router-dom";
 
 const navLinks = [
@@ -13,6 +14,7 @@ const navLinks = [
 export const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
@@ -38,9 +40,16 @@ export const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-3">
           {user ? (
-            <Button size="sm" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button variant="outline" size="sm" asChild className="gap-1.5">
+                  <Link to="/admin"><Shield size={12} /> Admin</Link>
+                </Button>
+              )}
+              <Button size="sm" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            </div>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
