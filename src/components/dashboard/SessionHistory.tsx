@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Briefcase, Trash2, ChevronDown, ChevronUp } from "lucide-react";
@@ -38,34 +36,16 @@ const levelLabels: Record<string, string> = {
   manager: "Manager",
 };
 
-export const SessionHistory = ({ onHasData }: { onHasData: (has: boolean) => void }) => {
-  const { user } = useAuth();
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [loading, setLoading] = useState(true);
+export const SessionHistory = ({
+  sessions,
+  loading,
+  onDelete,
+}: {
+  sessions: Session[];
+  loading: boolean;
+  onDelete: (id: string) => void;
+}) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetchSessions = async () => {
-      const { data } = await supabase
-        .from("interview_sessions")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      const result = (data as unknown as Session[]) || [];
-      setSessions(result);
-      onHasData(result.length > 0);
-      setLoading(false);
-    };
-    fetchSessions();
-  }, [user, onHasData]);
-
-  const deleteSession = async (id: string) => {
-    await supabase.from("interview_sessions").delete().eq("id", id);
-    const updated = sessions.filter((s) => s.id !== id);
-    setSessions(updated);
-    onHasData(updated.length > 0);
-  };
 
   if (loading) {
     return (
@@ -136,7 +116,7 @@ export const SessionHistory = ({ onHasData }: { onHasData: (has: boolean) => voi
                   className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteSession(session.id);
+                    onDelete(session.id);
                   }}
                 >
                   <Trash2 size={14} />
