@@ -40,9 +40,16 @@ export const Navbar = () => {
 
         <div className="hidden md:flex items-center gap-3">
           {user ? (
-            <Button size="sm" asChild>
-              <Link to="/dashboard">Dashboard</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button variant="outline" size="sm" asChild className="gap-1.5">
+                  <Link to="/admin"><Shield size={12} /> Admin</Link>
+                </Button>
+              )}
+              <Button size="sm" asChild>
+                <Link to="/dashboard">Dashboard</Link>
+              </Button>
+            </div>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
