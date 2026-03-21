@@ -1,22 +1,54 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SessionHistory } from "@/components/dashboard/SessionHistory";
+import { PerformanceTrends } from "@/components/dashboard/PerformanceTrends";
 import { LogOut, Play, User } from "lucide-react";
+
+type Session = {
+  id: string;
+  job_title: string;
+  job_level: string;
+  questions: { question: string; category: string }[];
+  duration_seconds: number;
+  feedback: any;
+  created_at: string;
+};
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [hasSessions, setHasSessions] = useState<boolean | null>(null);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("interview_sessions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setSessions((data as unknown as Session[]) || []);
+      setLoading(false);
+    };
+    fetch();
+  }, [user]);
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("interview_sessions").delete().eq("id", id);
+    setSessions((prev) => prev.filter((s) => s.id !== id));
+  };
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
-  const onHasData = useCallback((has: boolean) => setHasSessions(has), []);
+  const hasSessions = !loading && sessions.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,12 +71,14 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {hasSessions && <PerformanceTrends sessions={sessions} />}
+
         {hasSessions && (
           <h2 className="text-sm font-medium text-muted-foreground mb-3">Recent Sessions</h2>
         )}
-        <SessionHistory onHasData={onHasData} />
+        <SessionHistory sessions={sessions} loading={loading} onDelete={handleDelete} />
 
-        {hasSessions === false && (
+        {!loading && sessions.length === 0 && (
           <div className="feedback-card text-center py-16">
             <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-4">
               <User size={20} className="text-primary" />
