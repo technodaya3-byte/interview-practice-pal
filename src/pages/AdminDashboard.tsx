@@ -151,6 +151,7 @@ const AdminDashboard = () => {
             <QuestionBankPanel />
           </TabsContent>
         </Tabs>
+      </div>
     </div>
   );
 };
