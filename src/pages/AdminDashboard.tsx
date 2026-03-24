@@ -6,8 +6,11 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { LogOut, Users, Briefcase, Clock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminFilters, defaultFilters, type Filters } from "@/components/admin/AdminFilters";
 import { AdminSessionList } from "@/components/admin/AdminSessionList";
+import { QuestionBankPanel } from "@/components/admin/QuestionBankPanel";
+import { AdminAnalyticsPanel } from "@/components/admin/AdminAnalyticsPanel";
 
 type SessionRow = {
   id: string;
