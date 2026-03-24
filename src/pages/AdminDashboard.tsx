@@ -6,8 +6,11 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { LogOut, Users, Briefcase, Clock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminFilters, defaultFilters, type Filters } from "@/components/admin/AdminFilters";
 import { AdminSessionList } from "@/components/admin/AdminSessionList";
+import { QuestionBankPanel } from "@/components/admin/QuestionBankPanel";
+import { AdminAnalyticsPanel } from "@/components/admin/AdminAnalyticsPanel";
 
 type SessionRow = {
   id: string;
@@ -126,12 +129,28 @@ const AdminDashboard = () => {
           ))}
         </div>
 
-        {/* Filters */}
-        <AdminFilters filters={filters} onChange={setFilters} users={userList} />
+        {/* Tabbed sections */}
+        <Tabs defaultValue="sessions" className="mt-2">
+          <TabsList className="mb-4">
+            <TabsTrigger value="sessions">Sessions</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="questions">Question Bank</TabsTrigger>
+          </TabsList>
 
-        {/* Sessions list */}
-        <h2 className="text-sm font-medium text-muted-foreground mb-3">All Sessions</h2>
-        <AdminSessionList sessions={filtered} profiles={profiles} />
+          <TabsContent value="sessions">
+            <AdminFilters filters={filters} onChange={setFilters} users={userList} />
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">All Sessions</h2>
+            <AdminSessionList sessions={filtered} profiles={profiles} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdminAnalyticsPanel sessions={sessions} profiles={profiles} />
+          </TabsContent>
+
+          <TabsContent value="questions">
+            <QuestionBankPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
