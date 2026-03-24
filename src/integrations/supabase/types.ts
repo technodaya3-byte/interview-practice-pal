@@ -74,6 +74,36 @@ export type Database = {
         }
         Relationships: []
       }
+      question_bank: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          id: string
+          job_level: string
+          job_title: string
+          question: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          id?: string
+          job_level?: string
+          job_title?: string
+          question: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          job_level?: string
+          job_title?: string
+          question?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
