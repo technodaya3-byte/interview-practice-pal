@@ -98,8 +98,27 @@ const fadeUp = {
 } as const;
 
 const Demo = () => {
+  const [activeVideo, setActiveVideo] = useState<typeof demoVideos[number] | null>(null);
   return (
     <div className="min-h-screen bg-background">
+      <Dialog open={!!activeVideo} onOpenChange={(open) => !open && setActiveVideo(null)}>
+        <DialogContent className="sm:max-w-3xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>{activeVideo?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {activeVideo && (
+              <iframe
+                src={activeVideo.videoUrl}
+                title={activeVideo.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <Navbar />
 
       {/* Hero */}
