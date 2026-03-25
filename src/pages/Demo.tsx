@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Star, Play, Quote } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const testimonials = [
   {
@@ -70,18 +72,21 @@ const demoVideos = [
     description: "A quick walkthrough of setting up your first mock interview session and choosing your role.",
     thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=640&q=80",
     duration: "3:24",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     title: "AI Feedback in Action",
     description: "See how our AI analyzes your answers in real-time — filler words, confidence, and structure scoring.",
     thumbnail: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80",
     duration: "5:12",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     title: "Tracking Your Progress",
     description: "Explore the performance dashboard — trend charts, category breakdowns, and session history.",
     thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&q=80",
     duration: "4:08",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
 ];
 
@@ -93,8 +98,27 @@ const fadeUp = {
 } as const;
 
 const Demo = () => {
+  const [activeVideo, setActiveVideo] = useState<typeof demoVideos[number] | null>(null);
   return (
     <div className="min-h-screen bg-background">
+      <Dialog open={!!activeVideo} onOpenChange={(open) => !open && setActiveVideo(null)}>
+        <DialogContent className="sm:max-w-3xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-0">
+            <DialogTitle>{activeVideo?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="aspect-video w-full">
+            {activeVideo && (
+              <iframe
+                src={activeVideo.videoUrl}
+                title={activeVideo.title}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <Navbar />
 
       {/* Hero */}
@@ -133,7 +157,7 @@ const Demo = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-shadow border-border">
+                <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-shadow border-border" onClick={() => setActiveVideo(video)}>
                   <div className="relative">
                     <img
                       src={video.thumbnail}
