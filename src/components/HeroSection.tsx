@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import heroMockup from "@/assets/hero-mockup.jpg";
 
 export const HeroSection = () => {
@@ -36,11 +37,11 @@ export const HeroSection = () => {
           </p>
 
           <div className="flex items-center justify-center gap-4">
-            <Button size="lg" className="gap-2 px-6">
-              Start Practicing <ArrowRight size={16} />
+            <Button size="lg" className="gap-2 px-6" asChild>
+              <Link to="/auth">Start Practicing <ArrowRight size={16} /></Link>
             </Button>
-            <Button variant="outline" size="lg" className="gap-2 px-6">
-              <Play size={14} /> Watch Demo
+            <Button variant="outline" size="lg" className="gap-2 px-6" asChild>
+              <Link to="/demo"><Play size={14} /> Watch Demo</Link>
             </Button>
           </div>
         </motion.div>
