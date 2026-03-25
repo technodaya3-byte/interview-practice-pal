@@ -72,18 +72,21 @@ const demoVideos = [
     description: "A quick walkthrough of setting up your first mock interview session and choosing your role.",
     thumbnail: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=640&q=80",
     duration: "3:24",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     title: "AI Feedback in Action",
     description: "See how our AI analyzes your answers in real-time — filler words, confidence, and structure scoring.",
     thumbnail: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80",
     duration: "5:12",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
   {
     title: "Tracking Your Progress",
     description: "Explore the performance dashboard — trend charts, category breakdowns, and session history.",
     thumbnail: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&q=80",
     duration: "4:08",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
   },
 ];
 
