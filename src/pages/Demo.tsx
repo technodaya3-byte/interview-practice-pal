@@ -157,7 +157,7 @@ const Demo = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-shadow border-border">
+                <Card className="overflow-hidden group cursor-pointer hover:shadow-md transition-shadow border-border" onClick={() => setActiveVideo(video)}>
                   <div className="relative">
                     <img
                       src={video.thumbnail}
