@@ -51,6 +51,7 @@ const Interview = () => {
               jobTitle: cfg.jobTitle,
               jobLevel: cfg.jobLevel,
               numberOfQuestions: cfg.numberOfQuestions,
+              userId: user?.id,
             },
           }
         );
@@ -129,6 +130,7 @@ const Interview = () => {
           jobLevel: config?.jobLevel,
           questions,
           durationSeconds,
+          userId: user?.id,
         },
       });
 

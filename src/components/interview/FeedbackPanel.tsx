@@ -1,11 +1,18 @@
 import { motion } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, MessageSquare, Loader2 } from "lucide-react";
+import { CheckCircle2, AlertTriangle, MessageSquare, Loader2, Users, Lightbulb, TrendingUp } from "lucide-react";
 
 type FeedbackCategory = {
   name: string;
   score: number;
   feedback: string;
+  peerAverage?: number;
+};
+
+type PeerComparison = {
+  peerAverageScore: number;
+  percentile: number;
+  comparisonSummary: string;
 };
 
 export type InterviewFeedback = {
@@ -15,6 +22,8 @@ export type InterviewFeedback = {
   strengths: string[];
   improvements: string[];
   fillerWordTip: string;
+  peerComparison?: PeerComparison;
+  personalizedTips?: string[];
 };
 
 const scoreColor = (score: number) => {
@@ -73,7 +82,37 @@ export const FeedbackPanel = ({
         </p>
       </motion.div>
 
-      {/* Category Breakdown */}
+      {/* Peer Comparison */}
+      {feedback.peerComparison && feedback.peerComparison.peerAverageScore > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.08, ease }}
+          className="rounded-lg border border-primary/20 bg-primary/5 p-4"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Users size={16} className="text-primary" />
+            <h3 className="text-sm font-medium text-foreground">Peer Comparison</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Peer Average</p>
+              <p className="text-lg font-bold text-foreground tabular-nums">
+                {feedback.peerComparison.peerAverageScore}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Your Percentile</p>
+              <p className={`text-lg font-bold tabular-nums ${scoreColor(feedback.peerComparison.percentile)}`}>
+                Top {100 - feedback.peerComparison.percentile}%
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">{feedback.peerComparison.comparisonSummary}</p>
+        </motion.div>
+      )}
+
+      {/* Category Breakdown with Peer Bars */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -91,11 +130,27 @@ export const FeedbackPanel = ({
           >
             <div className="flex items-center justify-between">
               <span className="text-sm text-foreground">{cat.name}</span>
-              <span className={`text-sm font-medium tabular-nums ${scoreColor(cat.score)}`}>
-                {cat.score}
-              </span>
+              <div className="flex items-center gap-2">
+                {cat.peerAverage != null && cat.peerAverage > 0 && (
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    Peers: {cat.peerAverage}
+                  </span>
+                )}
+                <span className={`text-sm font-medium tabular-nums ${scoreColor(cat.score)}`}>
+                  {cat.score}
+                </span>
+              </div>
             </div>
-            <Progress value={cat.score} className={`h-2 ${progressColor(cat.score)}`} />
+            <div className="relative">
+              <Progress value={cat.score} className={`h-2 ${progressColor(cat.score)}`} />
+              {cat.peerAverage != null && cat.peerAverage > 0 && (
+                <div
+                  className="absolute top-0 h-2 w-0.5 bg-foreground/40 rounded-full"
+                  style={{ left: `${cat.peerAverage}%` }}
+                  title={`Peer average: ${cat.peerAverage}`}
+                />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">{cat.feedback}</p>
           </motion.div>
         ))}
@@ -138,6 +193,28 @@ export const FeedbackPanel = ({
           ))}
         </ul>
       </motion.div>
+
+      {/* Personalized Tips */}
+      {feedback.personalizedTips && feedback.personalizedTips.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.45, ease }}
+          className="rounded-lg border border-accent bg-accent/30 p-4"
+        >
+          <h3 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+            <Lightbulb size={14} className="text-primary" />
+            Personalized Tips (Based on Your History)
+          </h3>
+          <ul className="space-y-2">
+            {feedback.personalizedTips.map((tip, i) => (
+              <li key={i} className="text-sm text-muted-foreground pl-5 relative before:content-[''] before:absolute before:left-0 before:top-2 before:w-2 before:h-2 before:rounded-full before:bg-primary/30">
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      )}
 
       {/* Filler Word Tip */}
       <motion.div
