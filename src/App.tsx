@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import Interview from "./pages/Interview.tsx";
 import Demo from "./pages/Demo.tsx";
+import Leaderboard from "./pages/Leaderboard.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
