@@ -23,17 +23,17 @@ const ANIMAL_NAMES = [
 ];
 
 const getRankIcon = (rank: number) => {
-  if (rank === 1) return <Trophy className="h-5 w-5 text-yellow-500" />;
-  if (rank === 2) return <Medal className="h-5 w-5 text-gray-400" />;
-  if (rank === 3) return <Award className="h-5 w-5 text-amber-600" />;
+  if (rank === 1) return <Trophy className="h-5 w-5 text-accent-foreground" />;
+  if (rank === 2) return <Medal className="h-5 w-5 text-muted-foreground" />;
+  if (rank === 3) return <Award className="h-5 w-5 text-primary" />;
   return <span className="text-sm font-mono text-muted-foreground w-5 text-center">{rank}</span>;
 };
 
 const getRankBg = (rank: number, isCurrentUser: boolean) => {
   if (isCurrentUser) return "ring-2 ring-primary bg-primary/5";
-  if (rank === 1) return "bg-yellow-500/5 border-yellow-500/20";
-  if (rank === 2) return "bg-gray-400/5 border-gray-400/20";
-  if (rank === 3) return "bg-amber-600/5 border-amber-600/20";
+  if (rank === 1) return "bg-accent/10 border-accent/30";
+  if (rank === 2) return "bg-muted/30 border-muted-foreground/20";
+  if (rank === 3) return "bg-primary/5 border-primary/20";
   return "";
 };
 
