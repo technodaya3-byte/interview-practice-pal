@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Shield } from "lucide-react";
+import { Menu, X, Shield, Trophy } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -46,6 +46,9 @@ export const Navbar = () => {
                   <Link to="/admin"><Shield size={12} /> Admin</Link>
                 </Button>
               )}
+              <Button variant="outline" size="sm" asChild className="gap-1.5">
+                <Link to="/leaderboard"><Trophy size={12} /> Leaderboard</Link>
+              </Button>
               <Button size="sm" asChild>
                 <Link to="/dashboard">Dashboard</Link>
               </Button>
