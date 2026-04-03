@@ -49,26 +49,47 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
+          college: string | null
           created_at: string
+          degree: string | null
           display_name: string | null
+          domain: string | null
+          github_url: string | null
           id: string
+          is_banned: boolean
+          linkedin_url: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
+          college?: string | null
           created_at?: string
+          degree?: string | null
           display_name?: string | null
+          domain?: string | null
+          github_url?: string | null
           id?: string
+          is_banned?: boolean
+          linkedin_url?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
+          college?: string | null
           created_at?: string
+          degree?: string | null
           display_name?: string | null
+          domain?: string | null
+          github_url?: string | null
           id?: string
+          is_banned?: boolean
+          linkedin_url?: string | null
           updated_at?: string
           user_id?: string
         }
