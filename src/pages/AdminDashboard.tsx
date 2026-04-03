@@ -145,6 +145,10 @@ const AdminDashboard = () => {
             <AdminSessionList sessions={filtered} profiles={profiles} />
           </TabsContent>
 
+          <TabsContent value="users">
+            <UserManagementPanel sessions={sessions} />
+          </TabsContent>
+
           <TabsContent value="analytics">
             <AdminAnalyticsPanel sessions={sessions} profiles={profiles} />
           </TabsContent>
