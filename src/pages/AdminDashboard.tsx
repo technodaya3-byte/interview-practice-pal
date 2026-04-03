@@ -11,6 +11,7 @@ import { AdminFilters, defaultFilters, type Filters } from "@/components/admin/A
 import { AdminSessionList } from "@/components/admin/AdminSessionList";
 import { QuestionBankPanel } from "@/components/admin/QuestionBankPanel";
 import { AdminAnalyticsPanel } from "@/components/admin/AdminAnalyticsPanel";
+import { UserManagementPanel } from "@/components/admin/UserManagementPanel";
 
 type SessionRow = {
   id: string;
