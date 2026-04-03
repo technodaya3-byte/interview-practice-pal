@@ -134,6 +134,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="sessions" className="mt-2">
           <TabsList className="mb-4">
             <TabsTrigger value="sessions">Sessions</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="questions">Question Bank</TabsTrigger>
           </TabsList>
