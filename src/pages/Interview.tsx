@@ -44,6 +44,16 @@ const Interview = () => {
       setLoading(true);
       setConfig(cfg);
       try {
+        // If pre-generated questions from AI plan, use them directly
+        if (cfg.preGeneratedQuestions && cfg.preGeneratedQuestions.length > 0) {
+          setQuestions(cfg.preGeneratedQuestions.map((q) => ({ question: q.question, category: q.category })));
+          setCurrentIndex(0);
+          setPhase("live");
+          setIsRecording(true);
+          startTimeRef.current = Date.now();
+          return;
+        }
+
         const { data, error } = await supabase.functions.invoke(
           "generate-questions",
           {
