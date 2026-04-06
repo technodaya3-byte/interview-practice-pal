@@ -49,6 +49,9 @@ export const Navbar = () => {
                 </Button>
               )}
               <Button variant="outline" size="sm" asChild className="gap-1.5">
+                <Link to="/live"><Presentation size={12} /> Live</Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild className="gap-1.5">
                 <Link to="/leaderboard"><Trophy size={12} /> Leaderboard</Link>
               </Button>
               <Button variant="outline" size="sm" asChild className="gap-1.5">
