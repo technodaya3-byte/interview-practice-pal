@@ -14,6 +14,8 @@ import Interview from "./pages/Interview.tsx";
 import Demo from "./pages/Demo.tsx";
 import Leaderboard from "./pages/Leaderboard.tsx";
 import ProfilePage from "./pages/Profile.tsx";
+import CreateRoom from "./pages/CreateRoom.tsx";
+import LiveRoom from "./pages/LiveRoom.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -63,6 +65,8 @@ const App = () => (
               }
             />
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/live" element={<CreateRoom />} />
+            <Route path="/room/:roomCode" element={<LiveRoom />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
