@@ -47,6 +47,48 @@ export type Database = {
         }
         Relationships: []
       }
+      live_sessions: {
+        Row: {
+          created_at: string
+          current_slide: number
+          id: string
+          is_active: boolean
+          presentation_url: string | null
+          presenter_id: string | null
+          presenter_name: string
+          room_code: string
+          title: string
+          total_slides: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_slide?: number
+          id?: string
+          is_active?: boolean
+          presentation_url?: string | null
+          presenter_id?: string | null
+          presenter_name?: string
+          room_code: string
+          title?: string
+          total_slides?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_slide?: number
+          id?: string
+          is_active?: boolean
+          presentation_url?: string | null
+          presenter_id?: string | null
+          presenter_name?: string
+          room_code?: string
+          title?: string
+          total_slides?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -124,6 +166,41 @@ export type Database = {
           question?: string
         }
         Relationships: []
+      }
+      session_messages: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          sender_name: string
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          sender_name?: string
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          sender_name?: string
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
