@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const signalsTable = () => supabase.from("webrtc_signals" as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const participantsTable = () => supabase.from("live_participants" as any);
+
 const ICE_SERVERS: RTCConfiguration = {
   iceServers: [
     { urls: "stun:stun.l.google.com:19302" },
