@@ -47,6 +47,44 @@ export type Database = {
         }
         Relationships: []
       }
+      live_participants: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          is_active: boolean
+          participant_id: string
+          session_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          participant_id: string
+          session_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          participant_id?: string
+          session_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_sessions: {
         Row: {
           created_at: string
@@ -222,6 +260,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      webrtc_signals: {
+        Row: {
+          created_at: string
+          from_id: string
+          id: string
+          session_id: string
+          signal_data: Json
+          signal_type: string
+          to_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_id: string
+          id?: string
+          session_id: string
+          signal_data: Json
+          signal_type: string
+          to_id: string
+        }
+        Update: {
+          created_at?: string
+          from_id?: string
+          id?: string
+          session_id?: string
+          signal_data?: Json
+          signal_type?: string
+          to_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webrtc_signals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
