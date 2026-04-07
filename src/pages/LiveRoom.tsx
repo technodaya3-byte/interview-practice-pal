@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { SlideViewer } from "@/components/live/SlideViewer";
 import { ChatPanel } from "@/components/live/ChatPanel";
-import { ParticipantVideo } from "@/components/live/ParticipantVideo";
+import { VideoGrid } from "@/components/live/VideoGrid";
+import { useWebRTC } from "@/hooks/useWebRTC";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, LogOut, Users } from "lucide-react";
@@ -31,6 +32,7 @@ export default function LiveRoom() {
   const [guestName, setGuestName] = useState("");
   const [joined, setJoined] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const [participantId] = useState(() => crypto.randomUUID());
 
   // Load session
   useEffect(() => {
@@ -140,6 +142,42 @@ export default function LiveRoom() {
   }
 
   return (
+    <LiveRoomContent
+      session={session!}
+      displayName={displayName}
+      participantId={participantId}
+      isPresenter={isPresenter}
+      userId={user?.id}
+      onCopyLink={copyLink}
+      onEndSession={endSession}
+      onSlideChange={handleSlideChange}
+    />
+  );
+}
+
+function LiveRoomContent({
+  session,
+  displayName,
+  participantId,
+  isPresenter,
+  userId,
+  onCopyLink,
+  onEndSession,
+  onSlideChange,
+}: {
+  session: SessionData;
+  displayName: string;
+  participantId: string;
+  isPresenter: boolean;
+  userId?: string;
+  onCopyLink: () => void;
+  onEndSession: () => void;
+  onSlideChange: (slide: number, total: number) => void;
+}) {
+  const { participants, localStream, videoEnabled, audioEnabled, toggleVideo, toggleAudio } =
+    useWebRTC(session.id, participantId, displayName);
+
+  return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       {/* Header */}
       <header className="h-14 border-b border-border flex items-center justify-between px-4 shrink-0 bg-card">
@@ -148,16 +186,19 @@ export default function LiveRoom() {
             <span className="text-primary-foreground font-semibold text-xs">AI</span>
           </div>
           <div>
-            <h1 className="text-sm font-semibold text-foreground leading-tight">{session?.title}</h1>
-            <p className="text-xs text-muted-foreground">by {session?.presenter_name}</p>
+            <h1 className="text-sm font-semibold text-foreground leading-tight">{session.title}</h1>
+            <p className="text-xs text-muted-foreground">by {session.presenter_name}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={copyLink} className="gap-1.5 text-xs">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <Users className="h-3 w-3" /> {participants.length + 1}
+          </span>
+          <Button variant="outline" size="sm" onClick={onCopyLink} className="gap-1.5 text-xs">
             <Copy className="h-3 w-3" /> Share Link
           </Button>
           {isPresenter && (
-            <Button variant="destructive" size="sm" onClick={endSession} className="gap-1.5 text-xs">
+            <Button variant="destructive" size="sm" onClick={onEndSession} className="gap-1.5 text-xs">
               <LogOut className="h-3 w-3" /> End
             </Button>
           )}
@@ -169,20 +210,30 @@ export default function LiveRoom() {
         {/* Slide area */}
         <div className="flex-1 p-4 min-w-0">
           <SlideViewer
-            sessionId={session!.id}
+            sessionId={session.id}
             isPresenter={isPresenter}
-            currentSlide={session!.current_slide}
-            totalSlides={session!.total_slides}
-            presentationUrl={session!.presentation_url}
-            onSlideChange={handleSlideChange}
+            currentSlide={session.current_slide}
+            totalSlides={session.total_slides}
+            presentationUrl={session.presentation_url}
+            onSlideChange={onSlideChange}
           />
         </div>
 
         {/* Right sidebar */}
-        <div className="w-80 border-l border-border flex flex-col p-4 gap-4 shrink-0">
-          <ParticipantVideo name={displayName} />
+        <div className="w-80 border-l border-border flex flex-col p-3 gap-3 shrink-0">
+          <div className="h-56 shrink-0">
+            <VideoGrid
+              localStream={localStream}
+              localName={displayName}
+              videoEnabled={videoEnabled}
+              audioEnabled={audioEnabled}
+              participants={participants}
+              onToggleVideo={toggleVideo}
+              onToggleAudio={toggleAudio}
+            />
+          </div>
           <div className="flex-1 min-h-0">
-            <ChatPanel sessionId={session!.id} senderName={displayName} userId={user?.id} />
+            <ChatPanel sessionId={session.id} senderName={displayName} userId={userId} />
           </div>
         </div>
       </div>
