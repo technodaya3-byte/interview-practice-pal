@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Participant } from "@/hooks/useWebRTC";
-import { Video, VideoOff, Mic, MicOff } from "lucide-react";
+import { Video, VideoOff, Mic, MicOff, Monitor, MonitorOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface VideoGridProps {
@@ -8,9 +8,11 @@ interface VideoGridProps {
   localName: string;
   videoEnabled: boolean;
   audioEnabled: boolean;
+  screenSharing: boolean;
   participants: Participant[];
   onToggleVideo: () => void;
   onToggleAudio: () => void;
+  onToggleScreenShare: () => void;
 }
 
 function RemoteVideo({ participant }: { participant: Participant }) {
@@ -48,9 +50,11 @@ export function VideoGrid({
   localName,
   videoEnabled,
   audioEnabled,
+  screenSharing,
   participants,
   onToggleVideo,
   onToggleAudio,
+  onToggleScreenShare,
 }: VideoGridProps) {
   const localVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -106,6 +110,14 @@ export function VideoGrid({
           onClick={onToggleAudio}
         >
           {audioEnabled ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
+        </Button>
+        <Button
+          variant={screenSharing ? "default" : "outline"}
+          size="icon"
+          className="h-9 w-9 rounded-full"
+          onClick={onToggleScreenShare}
+        >
+          {screenSharing ? <Monitor className="h-4 w-4" /> : <MonitorOff className="h-4 w-4" />}
         </Button>
       </div>
     </div>

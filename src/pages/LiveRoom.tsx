@@ -5,10 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SlideViewer } from "@/components/live/SlideViewer";
 import { ChatPanel } from "@/components/live/ChatPanel";
 import { VideoGrid } from "@/components/live/VideoGrid";
+import { ParticipantListPanel } from "@/components/live/ParticipantListPanel";
+import { ScreenShareView } from "@/components/live/ScreenShareView";
 import { useWebRTC } from "@/hooks/useWebRTC";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, LogOut, Users } from "lucide-react";
+import { Copy, LogOut, Users, MessageSquare, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 interface SessionData {
@@ -174,8 +176,10 @@ function LiveRoomContent({
   onEndSession: () => void;
   onSlideChange: (slide: number, total: number) => void;
 }) {
-  const { participants, localStream, videoEnabled, audioEnabled, toggleVideo, toggleAudio } =
+  const { participants, localStream, screenStream, videoEnabled, audioEnabled, screenSharing, toggleVideo, toggleAudio, toggleScreenShare } =
     useWebRTC(session.id, participantId, displayName);
+
+  const [rightTab, setRightTab] = useState<"chat" | "participants">("chat");
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -207,16 +211,27 @@ function LiveRoomContent({
 
       {/* Main content */}
       <div className="flex-1 flex min-h-0">
-        {/* Slide area */}
-        <div className="flex-1 p-4 min-w-0">
-          <SlideViewer
-            sessionId={session.id}
-            isPresenter={isPresenter}
-            currentSlide={session.current_slide}
-            totalSlides={session.total_slides}
-            presentationUrl={session.presentation_url}
-            onSlideChange={onSlideChange}
-          />
+        {/* Slide / Screen share area */}
+        <div className="flex-1 p-4 min-w-0 flex flex-col gap-3">
+          {screenStream || participants.some(p => p.screenStream) ? (
+            <div className="flex-1 min-h-0">
+              <ScreenShareView
+                stream={screenStream || participants.find(p => p.screenStream)?.screenStream || null}
+                sharerName={screenStream ? "You" : participants.find(p => p.screenStream)?.displayName || "Someone"}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 min-h-0">
+              <SlideViewer
+                sessionId={session.id}
+                isPresenter={isPresenter}
+                currentSlide={session.current_slide}
+                totalSlides={session.total_slides}
+                presentationUrl={session.presentation_url}
+                onSlideChange={onSlideChange}
+              />
+            </div>
+          )}
         </div>
 
         {/* Right sidebar */}
@@ -227,13 +242,47 @@ function LiveRoomContent({
               localName={displayName}
               videoEnabled={videoEnabled}
               audioEnabled={audioEnabled}
+              screenSharing={screenSharing}
               participants={participants}
               onToggleVideo={toggleVideo}
               onToggleAudio={toggleAudio}
+              onToggleScreenShare={toggleScreenShare}
             />
           </div>
+
+          {/* Tab buttons */}
+          <div className="flex gap-1 shrink-0">
+            <Button
+              variant={rightTab === "chat" ? "default" : "outline"}
+              size="sm"
+              className="flex-1 gap-1.5 text-xs"
+              onClick={() => setRightTab("chat")}
+            >
+              <MessageSquare className="h-3 w-3" /> Chat
+            </Button>
+            <Button
+              variant={rightTab === "participants" ? "default" : "outline"}
+              size="sm"
+              className="flex-1 gap-1.5 text-xs"
+              onClick={() => setRightTab("participants")}
+            >
+              <UserRound className="h-3 w-3" /> People ({participants.length + 1})
+            </Button>
+          </div>
+
           <div className="flex-1 min-h-0">
-            <ChatPanel sessionId={session.id} senderName={displayName} userId={userId} />
+            {rightTab === "chat" ? (
+              <ChatPanel sessionId={session.id} senderName={displayName} userId={userId} />
+            ) : (
+              <ParticipantListPanel
+                localName={displayName}
+                videoEnabled={videoEnabled}
+                audioEnabled={audioEnabled}
+                screenSharing={screenSharing}
+                isPresenter={isPresenter}
+                participants={participants}
+              />
+            )}
           </div>
         </div>
       </div>

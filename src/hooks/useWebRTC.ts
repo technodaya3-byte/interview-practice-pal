@@ -12,6 +12,7 @@ export interface Participant {
   participantId: string;
   displayName: string;
   stream: MediaStream | null;
+  screenStream: MediaStream | null;
 }
 
 interface SignalRow {
@@ -31,10 +32,15 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+  const [screenSharing, setScreenSharing] = useState(false);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
 
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const remoteStreams = useRef<Map<string, MediaStream>>(new Map());
+  const screenConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const remoteScreenStreams = useRef<Map<string, MediaStream>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
   const makingOffer = useRef<Set<string>>(new Set());
   const participantIdRef = useRef(participantId);
   participantIdRef.current = participantId;
@@ -82,7 +88,7 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
       setParticipants((prev) => {
         const exists = prev.find((p) => p.participantId === remoteId);
         if (exists) return prev.map((p) => p.participantId === remoteId ? { ...p, stream } : p);
-        return [...prev, { participantId: remoteId, displayName: remoteName, stream }];
+        return [...prev, { participantId: remoteId, displayName: remoteName, stream, screenStream: null }];
       });
     };
 
@@ -153,7 +159,7 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
             const map = new Map(prev.map(p => [p.participantId, p]));
             others.forEach((p) => {
               if (!map.has(p.participant_id)) {
-                map.set(p.participant_id, { participantId: p.participant_id, displayName: p.display_name, stream: null });
+                map.set(p.participant_id, { participantId: p.participant_id, displayName: p.display_name, stream: null, screenStream: null });
               }
             });
             return Array.from(map.values());
@@ -177,7 +183,7 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
           if (p.is_active) {
             setParticipants((prev) => {
               const exists = prev.find(x => x.participantId === p.participant_id);
-              if (!exists) return [...prev, { participantId: p.participant_id, displayName: p.display_name, stream: null }];
+              if (!exists) return [...prev, { participantId: p.participant_id, displayName: p.display_name, stream: null, screenStream: null }];
               return prev.map(x => x.participantId === p.participant_id ? { ...x, displayName: p.display_name } : x);
             });
             if (participantId > p.participant_id) startNegotiation(p.participant_id, p.display_name);
@@ -258,16 +264,47 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
     }
   }, [audioEnabled]);
 
+  const toggleScreenShare = useCallback(async () => {
+    if (screenSharing && screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop());
+      screenStreamRef.current = null;
+      setScreenStream(null);
+      setScreenSharing(false);
+      // Remove screen tracks from peers
+      peerConnections.current.forEach((pc) => {
+        const sender = pc.getSenders().find(s => s.track?.label?.includes("screen") || s.track?.kind === "video" && s.track !== localStreamRef.current?.getVideoTracks()[0]);
+        if (sender) pc.removeTrack(sender);
+      });
+    } else {
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        screenStreamRef.current = stream;
+        setScreenStream(stream);
+        setScreenSharing(true);
+        const track = stream.getVideoTracks()[0];
+        peerConnections.current.forEach((pc) => pc.addTrack(track, stream));
+        // Auto-stop when user clicks browser's "Stop sharing"
+        track.onended = () => {
+          screenStreamRef.current = null;
+          setScreenStream(null);
+          setScreenSharing(false);
+        };
+      } catch { /* denied */ }
+    }
+  }, [screenSharing]);
+
   // Cleanup
   useEffect(() => {
     const pcs = peerConnections;
     const ls = localStreamRef;
+    const ss = screenStreamRef;
     return () => {
       pcs.current.forEach((pc) => pc.close());
       pcs.current.clear();
       ls.current?.getTracks().forEach((t) => t.stop());
+      ss.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
-  return { participants, localStream, videoEnabled, audioEnabled, toggleVideo, toggleAudio };
+  return { participants, localStream, screenStream, videoEnabled, audioEnabled, screenSharing, toggleVideo, toggleAudio, toggleScreenShare };
 }
