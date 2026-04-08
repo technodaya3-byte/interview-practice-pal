@@ -12,6 +12,7 @@ export interface Participant {
   participantId: string;
   displayName: string;
   stream: MediaStream | null;
+  screenStream: MediaStream | null;
 }
 
 interface SignalRow {
@@ -31,10 +32,15 @@ export function useWebRTC(sessionId: string, participantId: string, displayName:
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
+  const [screenSharing, setScreenSharing] = useState(false);
+  const [screenStream, setScreenStream] = useState<MediaStream | null>(null);
 
   const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const remoteStreams = useRef<Map<string, MediaStream>>(new Map());
+  const screenConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
+  const remoteScreenStreams = useRef<Map<string, MediaStream>>(new Map());
   const localStreamRef = useRef<MediaStream | null>(null);
+  const screenStreamRef = useRef<MediaStream | null>(null);
   const makingOffer = useRef<Set<string>>(new Set());
   const participantIdRef = useRef(participantId);
   participantIdRef.current = participantId;
