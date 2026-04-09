@@ -70,6 +70,7 @@ const App = () => (
             <Route path="/room/:roomCode" element={<LiveRoom />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AIChatWidget />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
